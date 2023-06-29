@@ -1,0 +1,38 @@
+apiVersion: sqs.services.k8s.aws/v1alpha1
+kind: Queue
+metadata:
+  name: ack-test
+  annotations:
+    services.k8s.aws/region: eu-west-1
+spec:
+  queueName: ack-test
+  policy: |
+    {
+      "Statement": [{
+        "Sid": "__owner_statement",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "481121494044"
+        },
+        "Action": "sqs:SendMessage",
+        "Resource": "arn:aws:sqs:eu-west-1:481121494044:ack-test"
+      }]
+    }
+
+
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: ack-subs-to-cm
+spec:  
+  to:
+    name: ack-test # Matches the ConfigMap we created above
+    kind: configmap
+  from:
+    path: ".status.ackResourceMetadata.arn"
+    resource:
+      group: sqs.services.k8s.aws
+      kind: Queue
+      name: ack-test
+

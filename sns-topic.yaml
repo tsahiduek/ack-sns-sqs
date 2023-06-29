@@ -1,0 +1,24 @@
+apiVersion: sns.services.k8s.aws/v1alpha1
+kind: Topic
+metadata:
+  name: ack-test
+spec:
+  name: ack-test
+  tags:
+  - key: env
+    value: test
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: ack-test-topic-to-cm
+spec:  
+  to:
+    name: ack-test # Matches the ConfigMap we created above
+    kind: configmap
+  from:
+    path: ".status.ackResourceMetadata.arn"
+    resource:
+      group: sns.services.k8s.aws
+      kind: Topic
+      name: ack-test

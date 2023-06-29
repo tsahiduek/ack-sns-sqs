@@ -1,0 +1,26 @@
+apiVersion: sns.services.k8s.aws/v1alpha1
+kind: Subscription
+metadata:
+  name: ack-test
+spec:
+  protocol: sqs
+  endpoint: arn:aws:sqs:eu-west-1:481121494044:ack-test
+  topicRef: 
+    from: 
+      name: ack-test
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: ack-test-sqs-to-cm
+spec:  
+  to:
+    name: ack-test # Matches the ConfigMap we created above
+    kind: configmap
+    # key: default.ack-test-sqs-to-cm.subscription
+  from:
+    path: ".status.ackResourceMetadata.arn"
+    resource:
+      group: sns.services.k8s.aws
+      kind: Subscription
+      name: ack-test
